@@ -18,13 +18,14 @@ namespace eShopSolution.Application.Catalog.Products
             _context = context;
         }
 
-        public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(GetPublicProductPagingRequest request)
+        public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
         {
             //1. select joint
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId
                         join c in _context.Categories on pic.CategoryId equals c.Id
+                        where pt.LanguageId == languageId
                         select new { p, pt, pic };
 
             //2. filter            
@@ -65,40 +66,6 @@ namespace eShopSolution.Application.Catalog.Products
 
             return pageResult;
         }
-        public async Task<List<ProductViewModel>> GetAll()
-        {
-            //1. select joint
-            var query = from p in _context.Products
-                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId
-                        join c in _context.Categories on pic.CategoryId equals c.Id
-                        select new { p, pt, pic };
-
-            
-            //3. paging
-            int totalRow = await query.CountAsync();
-            var data = await query
-                
-                .Select(m => new ProductViewModel()
-                {
-                    Id = m.p.Id,
-                    Name = m.pt.Name,
-                    DateCreated = m.p.DateCreated,
-                    Description = m.pt.Description,
-                    Details = m.pt.Details,
-                    LanguageId = m.pt.LanguageId,
-                    Price = m.p.Price,
-                    OriginalPrice = m.p.OriginalPrice,
-                    SeoAlias = m.pt.SeoAlias,
-                    SeoDescription = m.pt.SeoDescription,
-                    SeoTitle = m.pt.SeoTitle,
-                    Stock = m.p.Stock,
-                    ViewCount = m.p.ViewCount
-
-                }).ToListAsync();
-
-            
-            return data;
-        }
+     
     }
 }

@@ -69,7 +69,8 @@ namespace eShopSolution.Application.Catalog.Products
                 };
             }
             _context.Products.Add(product);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return product.Id;
         }
 
         public async Task<int> Delete(int id)
@@ -93,18 +94,35 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<int> Update(ProductUpdateRequest request)
         {
             var product = await _context.Products.FindAsync(request.Id);
-            var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(m => m.ProductId == request.Id && m.LanguageId == request.LanguageId);
 
-            if (product == null || productTranslation == null)
+            if (product == null)
                 throw new EShopException($"Cannot find a product: {request.Id}");
 
+            var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(m => m.ProductId == request.Id && m.LanguageId == request.LanguageId);
+            if (productTranslation == null)
+            {
+                productTranslation = new ProductTranslation
+                {
+                    Name = request.Name,
+                    SeoAlias = request.SeoAlias,
+                    SeoDescription = request.SeoDescription,
+                    SeoTitle = request.SeoTitle,
+                    Description = request.Description,
+                    Details = request.Details,
+                    LanguageId = request.LanguageId
+                };
 
-            productTranslation.Name = request.Name;
-            productTranslation.SeoAlias = request.SeoAlias;
-            productTranslation.SeoDescription = request.SeoDescription;
-            productTranslation.SeoTitle = request.SeoTitle;
-            productTranslation.Description = request.Description;
-            productTranslation.Details = request.Details;
+                product.ProductTranslations = new List<ProductTranslation> { productTranslation };
+            }
+            else
+            {
+                productTranslation.Name = request.Name;
+                productTranslation.SeoAlias = request.SeoAlias;
+                productTranslation.SeoDescription = request.SeoDescription;
+                productTranslation.SeoTitle = request.SeoTitle;
+                productTranslation.Description = request.Description;
+                productTranslation.Details = request.Details;
+            }
 
             // save images
             if (request.ThumbnailImage != null)
@@ -219,9 +237,9 @@ namespace eShopSolution.Application.Catalog.Products
             var image = await _context.ProductImages.FindAsync(imageId);
             if (image == null)
                 throw new EShopException($"Cannot find image: {imageId}");
-            
+
             await _storageService.DeleteFileAsync(image.ImagePath);
-           
+
             _context.ProductImages.Remove(image);
 
             return await _context.SaveChangesAsync();
@@ -245,10 +263,10 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<List<ProductImageViewModel>> GetImages(int productId)
         {
             var images = _context.ProductImages.Where(m => m.ProductId == productId);
-            
+
             if (images == null)
                 throw new EShopException($"Cannot find images of product: {productId}");
-            
+
             return await images.Select(m => new ProductImageViewModel
             {
                 Id = m.Id,
@@ -259,5 +277,29 @@ namespace eShopSolution.Application.Catalog.Products
 
         }
 
+        public async Task<ProductViewModel> GetById(int productId, string languageId)
+        {
+            var data = from p in _context.Products
+                       join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                       where p.Id == productId && pt.LanguageId == languageId
+                       select new ProductViewModel()
+                       {
+                           Id = p.Id,
+                           Name = pt.Name,
+                           DateCreated = p.DateCreated,
+                           Description = pt.Description,
+                           Details = pt.Details,
+                           LanguageId = pt.LanguageId,
+                           Price = p.Price,
+                           OriginalPrice = p.OriginalPrice,
+                           SeoAlias = pt.SeoAlias,
+                           SeoDescription = pt.SeoDescription,
+                           SeoTitle = pt.SeoTitle,
+                           Stock = p.Stock,
+                           ViewCount = p.ViewCount
+                       };
+
+            return await data.FirstOrDefaultAsync();
+        }
     }
 }

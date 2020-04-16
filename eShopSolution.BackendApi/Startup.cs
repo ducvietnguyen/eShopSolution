@@ -47,9 +47,11 @@ namespace eShopSolution.BackendApi
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<IUserService, UserService>();
 
-            services.AddControllers().AddFluentValidation();
-            services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
+            services.AddControllers().AddFluentValidation(validation => validation.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 
+            //Validation register
+            services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
+            services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
 
             services.AddSwaggerGen(c =>
             {

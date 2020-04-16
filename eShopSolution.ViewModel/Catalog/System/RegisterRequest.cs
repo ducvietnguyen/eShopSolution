@@ -13,6 +13,6 @@ namespace eShopSolution.ViewModel.Catalog.System
         public string PhoneNumber { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
-        public bool ConfirmedPassword { get; set; }
+        public string ConfirmedPassword { get; set; }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eShopSolution.BackendApi.Controllers
 {
+    [Route("api/[controller]")]
     public class UsersController : Controller
     {
         private readonly IUserService _userService;
@@ -20,22 +21,22 @@ namespace eShopSolution.BackendApi.Controllers
 
         [HttpPost("authenticate")]
         [AllowAnonymous]
-        public async Task<IActionResult> Authenticate([FromForm]LoginRequest request)
+        public async Task<IActionResult> Authenticate([FromBody]LoginRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var tokenResult = await _userService.Authenticate(request);
+            var token = await _userService.Authenticate(request);
 
-            if (string.IsNullOrEmpty(tokenResult))
+            if (string.IsNullOrEmpty(token))
                 return BadRequest("Username or password is incorrect");
 
-            return Ok(new { token = tokenResult });
+            return Ok(token);
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromForm]RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody]RegisterRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

@@ -1,7 +1,8 @@
 ﻿using eShopSolution.AdminApp.Services;
-using eShopSolution.ViewModel.Catalog.System;
+using eShopSolution.ViewModel.Catalog.System.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
@@ -33,6 +34,22 @@ namespace eShopSolution.AdminApp.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
+        {
+            var token = HttpContext.Session.GetString("token");
+            var request = new GetUserPagingRequest
+            {
+                BearerToken = token,
+                Keyword = keyword,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
+
+            var data = await _userApiClient.GetUserPaging(request);
+
+            return View(data);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequest request)
         {
@@ -47,6 +64,8 @@ namespace eShopSolution.AdminApp.Controllers
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
                 IsPersistent = true
             };
+
+            HttpContext.Session.SetString("token", token);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal, authProperties);
 

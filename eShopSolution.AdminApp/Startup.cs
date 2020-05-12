@@ -7,6 +7,8 @@ using FluentValidation.AspNetCore;
 using eShopSolution.ViewModel.Catalog.System;
 using eShopSolution.AdminApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using eShopSolution.ViewModel.Catalog.System.User;
+using System;
 
 namespace eShopSolution.AdminApp
 {
@@ -24,8 +26,17 @@ namespace eShopSolution.AdminApp
         {
             services.AddHttpClient();
 
+            services.AddDistributedMemoryCache();
+
             services.AddControllersWithViews()
                 .AddFluentValidation(validation => validation.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             services.AddTransient<IUserApiClient, UserApiClient>();
 
@@ -61,6 +72,8 @@ namespace eShopSolution.AdminApp
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

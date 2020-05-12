@@ -1,6 +1,5 @@
 ﻿using eShopSolution.Data.Entities;
 using Microsoft.Extensions.Configuration;
-using eShopSolution.ViewModel.Catalog.System;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -9,6 +8,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using eShopSolution.ViewModel.Catalog.System.User;
+using eShopSolution.ViewModel.Common;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace eShopSolution.Application.System.Users
 {
@@ -65,6 +68,43 @@ namespace eShopSolution.Application.System.Users
                signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<PagedResult<UserVm>> GetUserPaging(GetUserPagingRequest request)
+        {
+            //1. select joint
+            var query = _userManager.Users;
+
+            //2. filter
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                query = query.Where(m => m.UserName.Contains(request.Keyword));
+            }
+
+            //3. paging
+            int totalRow = await query.CountAsync();
+            var data = await query
+                .Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(m => new UserVm()
+                {
+                    Id = m.Id,
+                    Dob = m.Dob,
+                    Email = m.Email,
+                    FirstName = m.FirstName,
+                    LastName = m.LastName,
+                    PhoneNumber = m.PhoneNumber,
+                    UserName = m.UserName
+                }).ToListAsync();
+
+            //4. select projection
+            var pageResult = new PagedResult<UserVm>()
+            {
+                TotalRecords = totalRow,
+                Items = data
+            };
+
+            return pageResult;
         }
 
         public async Task<bool> Register(RegisterRequest request)

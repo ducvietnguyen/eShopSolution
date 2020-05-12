@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using eShopSolution.Application.System.Users;
-using eShopSolution.ViewModel.Catalog.System;
+using eShopSolution.ViewModel.Catalog.System.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class UsersController : Controller
     {
         private readonly IUserService _userService;
@@ -47,6 +49,14 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest("Register is unsuccessful");
 
             return Ok();
+        }
+
+        // /users/paging
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetUserPaging([FromQuery]GetUserPagingRequest request)
+        {
+            var users = await _userService.GetUserPaging(request);
+            return Ok(users);
         }
     }
 }

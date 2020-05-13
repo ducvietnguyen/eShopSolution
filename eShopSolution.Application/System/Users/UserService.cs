@@ -107,7 +107,7 @@ namespace eShopSolution.Application.System.Users
             return pageResult;
         }
 
-        public async Task<IdentityResult> Register(RegisterRequest request)
+        public async Task<ApiResult<bool>> Register(RegisterRequest request)
         {
             var user = new AppUser
             {
@@ -120,7 +120,12 @@ namespace eShopSolution.Application.System.Users
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
-            return result;
+
+            if (result.Errors.Any())
+            {
+                return new ApiErrorResult<bool>(result.Errors.Select(m => new ErrorValidationVm { Code = m.Code, Message = m.Description }).ToList());
+            }
+            return new ApiSuccessResult<bool>(true);
         }
     }
 }

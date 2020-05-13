@@ -1,16 +1,10 @@
 ﻿using eShopSolution.AdminApp.Services;
 using eShopSolution.ViewModel.Catalog.System.User;
+using eShopSolution.ViewModel.Common;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace eShopSolution.AdminApp.Controllers
@@ -55,10 +49,20 @@ namespace eShopSolution.AdminApp.Controllers
         {
             if (!ModelState.IsValid)
                 return View(request);
+
             var result = await _userApiClient.Create(request);
-            if (result)
-                return RedirectToAction("Index");
-            return View();
+
+            if (result is ApiErrorResult<bool>)
+            {
+                var errors = ((ApiErrorResult<bool>)result).ValidationErrors;
+                foreach (var item in errors)
+                {
+                    ModelState.AddModelError(item.Code, item.Message);
+                }
+                return View(request);
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

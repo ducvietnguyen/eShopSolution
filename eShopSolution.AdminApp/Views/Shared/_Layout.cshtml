@@ -7,7 +7,7 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>@ViewData["Title"] - Administration</title>
-    <link href="css/styles.css" rel="stylesheet" />
+    <link href="~/css/styles.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" crossorigin="anonymous"></script>
 </head>
@@ -34,7 +34,7 @@
                     <a class="dropdown-item" href="/Profile/Index">@User.Identity.Name</a>
                     <a class="dropdown-item" href="#">Activity Log</a>
                     <div class="dropdown-divider"></div>
-                    <form method="post" asp-controller="User" asp-action="Logout">
+                    <form method="post" asp-controller="auth" asp-action="Logout">
 
                         <button type="submit" value="Logout" class="dropdown-item">Logout</button>
                     </form>

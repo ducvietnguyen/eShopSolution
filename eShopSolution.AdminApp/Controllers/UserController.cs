@@ -29,11 +29,6 @@ namespace eShopSolution.AdminApp.Controllers
             _config = config;
         }
 
-        public IActionResult Login()
-        {
-            return View();
-        }
-
         public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
         {
             var token = HttpContext.Session.GetString("token");
@@ -50,54 +45,20 @@ namespace eShopSolution.AdminApp.Controllers
             return View(data);
         }
 
+        public IActionResult Create()
+        {
+            return View();
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Create(RegisterRequest request)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
-
-            var token = await _userApiClient.Authenticate(request);
-
-            var userPrincipal = ValidateToken(token);
-            var authProperties = new AuthenticationProperties
-            {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                IsPersistent = true
-            };
-
-            HttpContext.Session.SetString("token", token);
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal, authProperties);
-
-            return RedirectToAction("index", "home");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            HttpContext.Session.Remove("token");
-
-            return RedirectToAction("login", "user");
-        }
-
-        private ClaimsPrincipal ValidateToken(string jwtToken)
-        {
-            IdentityModelEventSource.ShowPII = true;
-
-            SecurityToken validatedToken;
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateLifetime = true,
-                ValidAudience = _config["Tokens:Issuer"],
-                ValidIssuer = _config["Tokens:Issuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]))
-            };
-
-            var principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
-
-            return principal;
+                return View(request);
+            var result = await _userApiClient.Create(request);
+            if (result)
+                return RedirectToAction("Index");
+            return View();
         }
     }
 }

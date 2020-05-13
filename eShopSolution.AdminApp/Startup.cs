@@ -9,6 +9,7 @@ using eShopSolution.AdminApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using eShopSolution.ViewModel.Catalog.System.User;
 using System;
+using FluentValidation;
 
 namespace eShopSolution.AdminApp
 {
@@ -39,11 +40,11 @@ namespace eShopSolution.AdminApp
             });
 
             services.AddTransient<IUserApiClient, UserApiClient>();
-
+            services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/User/Login/";
+                    options.LoginPath = "/Auth/Login/";
                     options.AccessDeniedPath = "/User/Forbidden";
                 });
 

@@ -28,7 +28,7 @@ namespace eShopSolution.AdminApp.Services
             var jsonRequest = JsonConvert.SerializeObject(request);
             var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
             var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri("https://localhost:5001");
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
 
             var response = await client.PostAsync("/api/users/authenticate", httpContent);
 
@@ -49,6 +49,19 @@ namespace eShopSolution.AdminApp.Services
             var json = JsonConvert.DeserializeObject<PagedResult<UserVm>>(body);
 
             return json;
+        }
+
+        public async Task<bool> Create(RegisterRequest request)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+
+            var jsonRequest = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync($"/api/users", httpContent);
+
+            return response.IsSuccessStatusCode;
         }
     }
 }

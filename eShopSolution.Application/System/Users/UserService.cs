@@ -107,7 +107,7 @@ namespace eShopSolution.Application.System.Users
             return pageResult;
         }
 
-        public async Task<bool> Register(RegisterRequest request)
+        public async Task<IdentityResult> Register(RegisterRequest request)
         {
             var user = new AppUser
             {
@@ -120,7 +120,7 @@ namespace eShopSolution.Application.System.Users
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
-            return result.Succeeded;
+            return result;
         }
     }
 }

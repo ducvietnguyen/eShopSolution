@@ -13,6 +13,6 @@ namespace eShopSolution.AdminApp.Services
 
         Task<PagedResult<UserVm>> GetUserPaging(GetUserPagingRequest request);
 
-        Task<bool> Create(RegisterRequest request);
+        Task<ApiResult<bool>> Create(RegisterRequest request);
     }
 }

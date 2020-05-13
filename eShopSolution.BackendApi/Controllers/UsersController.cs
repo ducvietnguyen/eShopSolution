@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using eShopSolution.Application.System.Users;
 using eShopSolution.ViewModel.Catalog.System.User;
+using eShopSolution.ViewModel.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,13 +47,10 @@ namespace eShopSolution.BackendApi.Controllers
 
             var result = await _userService.Register(request);
 
-            if (!result.Succeeded)
+            if (!result.IsSuccess)
             {
-                foreach (var item in result.Errors)
-                {
-                    ModelState.AddModelError(item.Code, item.Description);
-                }
-                return BadRequest(ModelState);
+                var validationErrors = ((ApiErrorResult<bool>)result).ValidationErrors;
+                return BadRequest(JsonSerializer.Serialize(validationErrors));
             }
             return Ok(result);
         }

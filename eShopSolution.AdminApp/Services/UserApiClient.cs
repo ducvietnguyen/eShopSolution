@@ -51,7 +51,7 @@ namespace eShopSolution.AdminApp.Services
             return json;
         }
 
-        public async Task<bool> Create(RegisterRequest request)
+        public async Task<ApiResult<bool>> Create(RegisterRequest request)
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
@@ -60,8 +60,14 @@ namespace eShopSolution.AdminApp.Services
             var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync($"/api/users", httpContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var result = new ApiErrorResult<bool>(JsonConvert.DeserializeObject<List<ErrorValidationVm>>(errorMessage));
+                return result;
+            }
 
-            return response.IsSuccessStatusCode;
+            return new ApiResult<bool>();
         }
     }
 }

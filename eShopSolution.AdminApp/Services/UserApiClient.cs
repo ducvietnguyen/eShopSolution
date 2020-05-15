@@ -116,12 +116,33 @@ namespace eShopSolution.AdminApp.Services
             var response = await client.GetAsync($"/api/users/{id}");
             var body = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
             }
 
             var json = JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body);
+
+            return json;
+        }
+
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var token = GetToken();
+
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.DeleteAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
+            }
+
+            var json = JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body);
 
             return json;
         }

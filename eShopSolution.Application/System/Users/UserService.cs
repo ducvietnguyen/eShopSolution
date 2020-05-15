@@ -90,6 +90,18 @@ namespace eShopSolution.Application.System.Users
             return new ApiSuccessResult<UserVm>(userVm);
         }
 
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user == null)
+                return new ApiErrorResult<bool>("User is not found");
+
+            await _userManager.DeleteAsync(user);
+
+            return new ApiSuccessResult<bool>();
+        }
+
         public async Task<PagedResult<UserVm>> GetUserPaging(GetUserPagingRequest request)
         {
             //1. select joint

@@ -90,5 +90,16 @@ namespace eShopSolution.BackendApi.Controllers
             }
             return Ok(result);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _userService.Delete(id);
+            if (result is ApiErrorResult<bool>)
+            {
+                return BadRequest(JsonSerializer.Serialize(result));
+            }
+            return Ok(result);
+        }
     }
 }

@@ -4,10 +4,13 @@ using System.Text;
 
 namespace eShopSolution.ViewModel.Common
 {
-    public class PagedResult<T>
+    public class PagedResult<T> : PagedResultBase
     {
-        public int TotalRecords { get; set; }
         public List<T> Items { get; set; }
 
+        public PagedResult()
+        {
+            Items = new List<T>();
+        }
     }
 }

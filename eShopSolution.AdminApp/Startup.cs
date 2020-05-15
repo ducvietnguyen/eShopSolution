@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using eShopSolution.ViewModel.Catalog.System.User;
 using System;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
 namespace eShopSolution.AdminApp
 {
@@ -38,6 +39,8 @@ namespace eShopSolution.AdminApp
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
+
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddTransient<IUserApiClient, UserApiClient>();
             services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();

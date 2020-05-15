@@ -34,18 +34,18 @@ namespace eShopSolution.Application.System.Users
             _config = config;
         }
 
-        public async Task<string> Authenticate(LoginRequest request)
+        public async Task<ApiResult<string>> Authenticate(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
             if (user == null)
             {
-                return null;
+                return new ApiErrorResult<string>($"Username '{request.UserName}' is not found");
             }
 
             var signinResult = await _signinImanager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
             if (!signinResult.Succeeded)
             {
-                return null;
+                return new ApiErrorResult<string>($"Username or password incorrect");
             }
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -67,7 +67,27 @@ namespace eShopSolution.Application.System.Users
                expires: DateTime.Now.AddHours(3),
                signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new ApiSuccessResult<string>(new JwtSecurityTokenHandler().WriteToken(token));
+        }
+
+        public async Task<ApiResult<UserVm>> GetById(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return new ApiErrorResult<UserVm>("User is not found");
+
+            var userVm = new UserVm
+            {
+                Dob = user.Dob,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                Id = user.Id,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                UserName = user.UserName
+            };
+
+            return new ApiSuccessResult<UserVm>(userVm);
         }
 
         public async Task<PagedResult<UserVm>> GetUserPaging(GetUserPagingRequest request)
@@ -109,6 +129,11 @@ namespace eShopSolution.Application.System.Users
 
         public async Task<ApiResult<bool>> Register(RegisterRequest request)
         {
+            if (await _userManager.Users.AnyAsync(m => m.Email == request.Email))
+            {
+                return new ApiErrorResult<bool>($"Email '{request.Email}' is already taken");
+            }
+
             var user = new AppUser
             {
                 Dob = request.Dob,
@@ -120,6 +145,30 @@ namespace eShopSolution.Application.System.Users
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
+
+            if (result.Errors.Any())
+            {
+                return new ApiErrorResult<bool>(result.Errors.Select(m => new ErrorValidationVm { Code = m.Code, Message = m.Description }).ToList());
+            }
+            return new ApiSuccessResult<bool>(true);
+        }
+
+        public async Task<ApiResult<bool>> Update(Guid id, UpdateUserRequest request)
+        {
+            if (await _userManager.Users.AnyAsync(m => m.Email == request.Email && m.Id != id))
+            {
+                return new ApiErrorResult<bool>($"Email '{request.Email}' is already taken");
+            }
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            user.Dob = request.Dob;
+            user.Email = request.Email;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+
+            user.PhoneNumber = request.PhoneNumber;
+
+            var result = await _userManager.UpdateAsync(user);
 
             if (result.Errors.Any())
             {

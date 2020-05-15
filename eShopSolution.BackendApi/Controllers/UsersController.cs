@@ -30,12 +30,13 @@ namespace eShopSolution.BackendApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var token = await _userService.Authenticate(request);
+            var result = await _userService.Authenticate(request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
 
-            if (string.IsNullOrEmpty(token))
-                return BadRequest("Username or password is incorrect");
-
-            return Ok(token);
+            return Ok(result);
         }
 
         [HttpPost]
@@ -47,7 +48,7 @@ namespace eShopSolution.BackendApi.Controllers
 
             var result = await _userService.Register(request);
 
-            if (!result.IsSuccess)
+            if (!result.IsSuccessed)
             {
                 var validationErrors = ((ApiErrorResult<bool>)result).ValidationErrors;
                 return BadRequest(JsonSerializer.Serialize(validationErrors));
@@ -61,6 +62,33 @@ namespace eShopSolution.BackendApi.Controllers
         {
             var users = await _userService.GetUserPaging(request);
             return Ok(users);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody]UpdateUserRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _userService.Update(id, request);
+
+            if (result is ApiErrorResult<bool>)
+            {
+                return BadRequest(JsonSerializer.Serialize(result));
+            }
+            return Ok(result);
+        }
+
+        // /users/paging
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _userService.GetById(id);
+            if (result is ApiErrorResult<UserVm>)
+            {
+                return BadRequest(JsonSerializer.Serialize(result));
+            }
+            return Ok(result);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using eShopSolution.AdminApp.Services;
 using eShopSolution.ViewModel.Catalog.System.User;
+using eShopSolution.ViewModel.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -40,7 +41,16 @@ namespace eShopSolution.AdminApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var token = await _userApiClient.Authenticate(request);
+            var result = await _userApiClient.Authenticate(request);
+            if (result is ApiErrorResult<string>)
+            {
+                var apiResult = (ApiErrorResult<string>)result;
+
+                ModelState.AddModelError("", apiResult.Message);
+                return View(request);
+            }
+
+            var token = result.ResultObject;
 
             var userPrincipal = ValidateToken(token);
             var authProperties = new AuthenticationProperties

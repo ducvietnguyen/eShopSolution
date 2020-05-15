@@ -9,7 +9,12 @@ namespace eShopSolution.ViewModel.Common
         public ApiSuccessResult(T resultObject)
         {
             ResultObject = resultObject;
-            IsSuccess = true;
+            IsSuccessed = true;
+        }
+
+        public ApiSuccessResult()
+        {
+            IsSuccessed = true;
         }
     }
 }

@@ -121,7 +121,9 @@ namespace eShopSolution.Application.System.Users
             var pageResult = new PagedResult<UserVm>()
             {
                 TotalRecords = totalRow,
-                Items = data
+                PageSize = request.PageSize,
+                PageIndex = request.PageIndex,
+                Items = data,
             };
 
             return pageResult;

@@ -15,15 +15,13 @@
     </ol>
 
     <div class="card mb-4">
-        <div class="card-header"><a  asp-action="create" asp-controller="user" class="btn btn-success">Create new</a></div>
+        <div class="card-header"><a asp-action="create" asp-controller="user" class="btn btn-success">Create new</a></div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>
-                                Id
-                            </th>
+
                             <th>
                                 FirstName
                             </th>
@@ -51,9 +49,7 @@
                         @foreach (var item in Model.Items)
                         {
                             <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Id)
-                                </td>
+
                                 <td>
                                     @Html.DisplayFor(modelItem => item.FirstName)
                                 </td>
@@ -73,8 +69,8 @@
                                     @Html.DisplayFor(modelItem => item.Dob)
                                 </td>
                                 <td>
-                                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
                                     @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
                                 </td>
                             </tr>

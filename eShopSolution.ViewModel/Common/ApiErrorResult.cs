@@ -11,13 +11,17 @@ namespace eShopSolution.ViewModel.Common
         public ApiErrorResult(List<ErrorValidationVm> validationErrors)
         {
             ValidationErrors = validationErrors;
-            IsSuccess = false;
+            IsSuccessed = false;
         }
 
         public ApiErrorResult(string message)
         {
             Message = message;
-            IsSuccess = false;
+            IsSuccessed = false;
+        }
+
+        public ApiErrorResult()
+        {
         }
     }
 }

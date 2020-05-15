@@ -1,5 +1,6 @@
 ﻿using eShopSolution.ViewModel.Catalog.System.User;
 using eShopSolution.ViewModel.Common;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -16,14 +17,19 @@ namespace eShopSolution.AdminApp.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public UserApiClient(
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<string> Authenticate(LoginRequest request)
+        public async Task<ApiResult<string>> Authenticate(LoginRequest request)
         {
             var jsonRequest = JsonConvert.SerializeObject(request);
             var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
@@ -32,16 +38,21 @@ namespace eShopSolution.AdminApp.Services
 
             var response = await client.PostAsync("/api/users/authenticate", httpContent);
 
-            var token = await response.Content.ReadAsStringAsync();
+            var resultContent = await response.Content.ReadAsStringAsync();
 
-            return token;
+            if (!response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiErrorResult<string>>(resultContent);
+            }
+            return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(resultContent);
         }
 
         public async Task<PagedResult<UserVm>> GetUserPaging(GetUserPagingRequest request)
         {
+            var token = GetToken();
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.BearerToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.GetAsync($"/api/users/paging?pageIndex={request.PageIndex}&pageSize={request.PageSize}&keyWord={request.Keyword}");
             var body = await response.Content.ReadAsStringAsync();
@@ -60,14 +71,65 @@ namespace eShopSolution.AdminApp.Services
             var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync($"/api/users", httpContent);
+
+            var resultContent = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
             {
-                var errorMessage = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var errorMessage = await response.Content.ReadAsStringAsync();
                 var result = new ApiErrorResult<bool>(JsonConvert.DeserializeObject<List<ErrorValidationVm>>(errorMessage));
                 return result;
             }
 
             return new ApiResult<bool>();
+        }
+
+        public async Task<ApiResult<bool>> Update(Guid id, UpdateUserRequest request)
+        {
+            var token = GetToken();
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var jsonRequest = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = await client.PutAsync($"/api/users/{id}", httpContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var resultContent = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(resultContent);
+            }
+            return new ApiResult<bool>();
+        }
+
+        public async Task<ApiResult<UserVm>> GetById(Guid id)
+        {
+            var token = GetToken();
+
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
+            }
+
+            var json = JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body);
+
+            return json;
+        }
+
+        private string GetToken()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("token");
+            return token;
         }
     }
 }

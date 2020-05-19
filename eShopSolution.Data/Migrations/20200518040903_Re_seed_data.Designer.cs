@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eShopSolution.Data.EF;
 
 namespace eShopSolution.Data.Migrations
 {
     [DbContext(typeof(EShopDbContext))]
-    partial class EShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200518040903_Re_seed_data")]
+    partial class Re_seed_data
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,7 +98,7 @@ namespace eShopSolution.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("ab4714a2-5bb5-4d51-be0e-8dff75000a2e"),
+                            UserId = new Guid("69bd714f-9576-45ba-b5b7-f00649be00de"),
                             RoleId = new Guid("8d04dce2-969a-435d-bba4-df3f325983dc")
                         });
                 });
@@ -180,7 +182,7 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = new Guid("8d04dce2-969a-435d-bba4-df3f325983dc"),
-                            ConcurrencyStamp = "68d33d28-5c3b-448e-ad52-da5dda8bf717",
+                            ConcurrencyStamp = "974542db-9d0a-42f5-8e73-0dedc973ef39",
                             Description = "Administrator role",
                             Name = "admin",
                             NormalizedName = "admin"
@@ -255,22 +257,22 @@ namespace eShopSolution.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ab4714a2-5bb5-4d51-be0e-8dff75000a2e"),
+                            Id = new Guid("69bd714f-9576-45ba-b5b7-f00649be00de"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0db43fff-2fdb-445a-bd01-94a95183a79f",
+                            ConcurrencyStamp = "77ac49d0-7fd9-48b8-9691-10a4083df5d0",
                             Dob = new DateTime(2020, 1, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "Admin02@gmail.com",
+                            Email = "Admin01@gmail.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
-                            LastName = "02",
+                            LastName = "01",
                             LockoutEnabled = false,
-                            NormalizedEmail = "Admin02@gmail.com",
-                            NormalizedUserName = "Admin02",
-                            PasswordHash = "AQAAAAEAACcQAAAAEFu5dguwi7Ci9Xu3MwjqlOCBLtzfSpeysQpnV+PCNtD4zVZFPSJBQLD+PfDErDE6pg==",
+                            NormalizedEmail = "Admin01@gmail.com",
+                            NormalizedUserName = "Admin01",
+                            PasswordHash = "AQAAAAEAACcQAAAAEPu13lXNeFa4gB/c1ACdnmGxOTM1DN6xXHeZDScEPbJN33nHMb61bPTdIq+OJyQE9A==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
-                            UserName = "Admin02"
+                            UserName = "Admin01"
                         });
                 });
 
@@ -615,7 +617,7 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            DateCreated = new DateTime(2020, 5, 18, 11, 14, 4, 608, DateTimeKind.Local).AddTicks(4599),
+                            DateCreated = new DateTime(2020, 5, 18, 11, 9, 1, 142, DateTimeKind.Local).AddTicks(4220),
                             OriginalPrice = 100000m,
                             Price = 200000m,
                             Stock = 0,

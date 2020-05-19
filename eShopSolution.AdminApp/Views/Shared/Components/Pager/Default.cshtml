@@ -11,7 +11,18 @@
             continue;
         }
 
-        urlTemplate += "&" + key + "=" + request.Query[key];
+        if (request.Query[key].Count > 0)
+        {
+            foreach (var item in (string[])request.Query[key])
+            {
+                urlTemplate += $"&{key}={item}";
+            }
+        }
+        else
+        {
+            urlTemplate += $"&{key}={request.Query[key]}";// "&" + key + "=" + request.Query[key];
+        }
+
     }
 
     var startIndex = Math.Max(Model.PageIndex - 5, 1);
@@ -63,9 +74,7 @@
                         </li>
 
                     }
-
                 </ul>
             </nav>}
-
     </div>
 </div>

@@ -3,7 +3,7 @@
 @model PagedResult<eShopSolution.ViewModel.Catalog.System.User.UserVm>
 
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "User List";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -15,71 +15,102 @@
     </ol>
 
     <div class="card mb-4">
-        <div class="card-header"><a asp-action="create" asp-controller="user" class="btn btn-success">Create new</a></div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-
-                            <th>
-                                FirstName
-                            </th>
-                            <th>
-                                LastName
-                            </th>
-                            <th>
-                                PhoneNumber
-                            </th>
-                            <th>
-                                UserName
-                            </th>
-                            <th>
-                                Email
-                            </th>
-                            <th>
-                                Dob
-                            </th>
-                            <th></th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        @foreach (var item in Model.Items)
-                        {
-                            <tr>
-
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.FirstName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.LastName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.UserName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Email)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Dob)
-                                </td>
-                                <td>
-                                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                @(await Component.InvokeAsync<PagerViewComponent>(Model))
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-4">
+                    <a asp-action="create" asp-controller="user" class="btn btn-success"><i class="fas fa-plus"></i> Create new</a>
+                </div>
+                <div class="col-md-6 offset-2">
+                    <form class="form-group" asp-action="index" method="get">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" placeholder="Search.." value="@ViewBag.Keyword" name="keyword" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-primary " type="submit"><i class="fa fa-search"></i> Search</button>
+                                <button class="btn btn-success"><i class="fas fa-sync-alt"></i> Refresh</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-       
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <div class="dataTables_wrapper">
+                    <table class="table table-bordered" cellspacing="0">
+                        <thead>
+                            <tr class="text-center">
+                                <th>
+                                    #
+                                </th>
+                                <th>
+                                    First Name
+                                </th>
+                                <th>
+                                    Last Name
+                                </th>
+                                <th>
+                                    Phone Number
+                                </th>
+                                <th>
+                                    Username
+                                </th>
+                                <th>
+                                    Email
+                                </th>
+                                <th>
+                                    Date of bird
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @{
+                                var i = 1;
+                            }
+                            @foreach (var item in Model.Items)
+                            {
+                                var rowNo = (Model.PageIndex - 1) * Model.PageSize + i;
+                                i++;
+                                <tr>
+                                    <td class="text-center">@rowNo</td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.FirstName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.LastName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PhoneNumber)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UserName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Email)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Dob)
+                                    </td>
+                                    <td class="text-center">
+                                        @*@Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                                        @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                                        @Html.ActionLink("Delete", "Delete", new { id = item.Id })*@
+
+                                        <a asp-controller="user" asp-action="edit" asp-route-id="@item.Id" class="btn btn-primary"> Edit</a>
+                                        <a asp-controller="user" asp-action="detail" asp-route-id="@item.Id" class="btn btn-info"> Detail</a>
+                                        <a asp-controller="user" asp-action="delete" asp-route-id="@item.Id" class="btn btn-danger"> Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    @(await Component.InvokeAsync<PagerViewComponent>(Model))
+                </div>
+            </div>
+        </div>
     </div>
 </div>

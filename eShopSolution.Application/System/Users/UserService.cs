@@ -110,7 +110,13 @@ namespace eShopSolution.Application.System.Users
             //2. filter
             if (!string.IsNullOrEmpty(request.Keyword))
             {
-                query = query.Where(m => m.UserName.Contains(request.Keyword));
+                query = query.Where(
+                    m => m.UserName.Contains(request.Keyword)
+                    || m.Email.Contains(request.Keyword)
+                    || m.FirstName.Contains(request.Keyword)
+                    || m.LastName.Contains(request.Keyword)
+                    || m.PhoneNumber.Contains(request.Keyword)
+                    || m.UserName.Contains(request.Keyword));
             }
 
             //3. paging
